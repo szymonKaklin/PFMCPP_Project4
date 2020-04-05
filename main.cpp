@@ -42,7 +42,6 @@ send me a DM to check your pull request
  */
 
 #include <iostream>
-#include <math.h>
 
 struct FloatType
 {
@@ -69,7 +68,7 @@ float FloatType::multiply( float lhs, float rhs)
 
 float FloatType::divide( float lhs, float rhs)
 {
-    if (fabs(rhs - 0.0f) < 0.0000000001f )
+    if (std::abs(rhs - 0.0f) < 0.0000000001f )
     {
         std::cout << "Warning! Float division by 0" << std::endl;
     }
@@ -134,7 +133,7 @@ double DoubleType::multiply(double lhs, double rhs)
 
 double DoubleType::divide(double lhs, double rhs)
 {
-    if (fabs(rhs - 0) < 0.0000000001 )
+    if (std::abs(rhs - 0) < 0.0000000001 )
     {
         std::cout << "Warning! Double division by 0" << std::endl;
     }
