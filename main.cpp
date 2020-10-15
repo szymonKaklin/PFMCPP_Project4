@@ -1,3 +1,4 @@
+
 /*
  Project 4 - Part 2 / 9
  Video: Chapter 3 Part 6
@@ -13,15 +14,31 @@ New/This/Pointers/References conclusion
      on the lines below it, write a struct named 'HeapA' that correctly shows how to own an instance of 'A' 
          on the heap without leaking, without using smart pointers. 
  */
+#include <iostream>
 
+struct HeapA;
+struct A
+{ 
+    A( HeapA& heapA_ ) : heapA( heapA_ ) { }
+    HeapA& heapA;
+};
 
+struct AWrapper
+{
+    AWrapper( A* ptr ) : pointerToA( ptr ) { }
+    ~AWrapper()
+    {
+        delete pointerToA;
+    }
+    A* pointerToA = nullptr;
+};
 
-
-
-
-
-
-
+// Thi is a struct named 'HeapA' which owns an instance of 'A' , which is created on the heap via the AWrapper struct so that deletion of pointer is taken care of
+struct HeapA
+{
+    HeapA() : a( new A( *this ) ) { }
+    AWrapper a;
+};
 
 
  /*
@@ -67,7 +84,7 @@ send me a DM to check your pull request
 
 
 
-#include <iostream>
+
 
 struct FloatType
 {
