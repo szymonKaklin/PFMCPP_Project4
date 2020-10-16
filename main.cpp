@@ -66,7 +66,8 @@ send me a DM to check your pull request
 
  Wait for my code review.
  */
-
+struct IntType;
+struct DoubleType;
 struct FloatType
 {
     FloatType( float x ) : heapFloatPtr( new float(x) ) { }
@@ -81,6 +82,22 @@ struct FloatType
     FloatType& subtract( float x );
     FloatType& multiply( float x );
     FloatType& divide( float x );
+
+    FloatType& add( const FloatType& ft );
+    FloatType& add( const IntType& it );
+    FloatType& add( const DoubleType& dt );
+
+    FloatType& subtract( const FloatType& ft );
+    FloatType& subtract( const IntType& it );
+    FloatType& subtract( const DoubleType& dt );
+
+    FloatType& multiply( const FloatType& ft );
+    FloatType& multiply( const IntType& it );
+    FloatType& multiply( const DoubleType& dt );
+
+    FloatType& divide( const FloatType& ft );
+    FloatType& divide( const IntType& it );
+    FloatType& divide( const DoubleType& dt );
 };
 
 FloatType& FloatType::add( float x )
@@ -109,6 +126,26 @@ FloatType& FloatType::divide( float x )
     }
     *heapFloatPtr /= x;
     return *this;
+}
+
+FloatType& FloatType::add( const FloatType& ft )
+{
+    return add( *ft.heapFloatPtr );
+}
+
+FloatType& FloatType::subtract( const FloatType& ft )
+{
+    return subtract( *ft.heapFloatPtr );
+}
+
+FloatType& FloatType::multiply( const FloatType& ft )
+{
+    return FloatType::multiply( *ft.heapFloatPtr );
+}
+
+FloatType& FloatType::divide( const FloatType& ft )
+{
+    return divide( *ft.heapFloatPtr );
 }
 
 struct IntType
@@ -201,6 +238,47 @@ DoubleType& DoubleType::divide( double x )
     return *this;
 }
 
+// Custom UDT Math Functions
+
+FloatType& FloatType::add( const IntType& it )
+{
+    return add( *it.heapIntPtr );
+}
+
+FloatType& FloatType::add( const DoubleType& dt )
+{
+    return add( *dt.heapDoublePtr );
+}
+
+FloatType& FloatType::subtract( const IntType& it )
+{
+    return subtract( *it.heapIntPtr );
+}
+
+FloatType& FloatType::subtract( const DoubleType& dt )
+{
+    return subtract( *dt.heapDoublePtr );
+}
+
+FloatType& FloatType::multiply( const IntType& it )
+{
+    return multiply( *it.heapIntPtr );
+}
+
+FloatType& FloatType::multiply( const DoubleType& dt )
+{
+    return multiply( *dt.heapDoublePtr );
+}
+
+FloatType& FloatType::divide( const IntType& it )
+{
+    return multiply( *it.heapIntPtr );
+}
+
+FloatType& FloatType::divide( const DoubleType& dt )
+{
+    return divide( *dt.heapDoublePtr );
+}
 
 int main()
 {
@@ -211,6 +289,9 @@ int main()
     DoubleType dt(234.352);
 
     FloatType ft2(2.f);
+
+    std::cout << *ft.add( ft2 ).add( it ).add( dt ).divide( it ).multiply( ft2 ).subtract( ft2 ).subtract( dt ).heapFloatPtr;
+    std::cout << "\n";
 
     // auto resultf = ft.add(1.2f);
     // auto resultf2 = ft.divide(3.2f);
