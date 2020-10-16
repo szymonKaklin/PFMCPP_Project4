@@ -32,8 +32,8 @@ struct HeapA
          IntType should own a heap-allocated int, for example.
  
  2) give it a constructor that takes the appropriate primitive
-    this argument will initialize the owned primitive's value.
-         i.e. if you're owning an int on the heap, your ctor argument will initialize that heap-allocated int's value.
+    this argument will initialize the owned primitive's valuePtr.
+         i.e. if you're owning an int on the heap, your ctor argument will initialize that heap-allocated int's valuePtr.
  
  3) modify those add/subtract/divide/multiply member functions from chapter 2 on it
          a) make them modify the owned numeric type
@@ -52,7 +52,7 @@ struct HeapA
     i.e.
          FloatType ft(0.1f);
          IntType it(3);
-         std::cout << "adding 3 and subtracting 'it' from 'ft' results in the following value: " << *ft.add(2.f).subtract( it ).value << std::endl;  //note the dereference of the `value` member of `ft`
+         std::cout << "adding 3 and subtracting 'it' from 'ft' results in the following valuePtr: " << *ft.add(2.f).subtract( it ).valuePtr << std::endl;  //note the dereference of the `valuePtr` member of `ft`
  
  6) Don't let your heap-allocated owned type leak!
  
@@ -70,13 +70,13 @@ struct IntType;
 struct DoubleType;
 struct FloatType
 {
-    FloatType( float x ) : heapFloatPtr( new float(x) ) { }
+    FloatType( float x ) : valuePtr( new float(x) ) { }
     ~FloatType()
     {
-        delete heapFloatPtr;
-        heapFloatPtr = nullptr;
+        delete valuePtr;
+        valuePtr = nullptr;
     }
-    float* heapFloatPtr = nullptr;
+    float* valuePtr = nullptr;
     
     FloatType& add( float x );
     FloatType& subtract( float x );
@@ -102,19 +102,19 @@ struct FloatType
 
 FloatType& FloatType::add( float x )
 {
-    *heapFloatPtr += x;
+    *valuePtr += x;
     return *this;
 }
 
 FloatType& FloatType::subtract( float x )
 {
-    *heapFloatPtr -= x;
+    *valuePtr -= x;
     return *this;
 }
 
 FloatType& FloatType::multiply( float x )
 {
-    *heapFloatPtr *= x;
+    *valuePtr *= x;
     return *this;
 }
 
@@ -124,61 +124,77 @@ FloatType& FloatType::divide( float x )
     {
         std::cout << "Warning! Float division by 0" << std::endl;
     }
-    *heapFloatPtr /= x;
+    *valuePtr /= x;
     return *this;
 }
 
 FloatType& FloatType::add( const FloatType& ft )
 {
-    return add( *ft.heapFloatPtr );
+    return add( *ft.valuePtr );
 }
 
 FloatType& FloatType::subtract( const FloatType& ft )
 {
-    return subtract( *ft.heapFloatPtr );
+    return subtract( *ft.valuePtr );
 }
 
 FloatType& FloatType::multiply( const FloatType& ft )
 {
-    return FloatType::multiply( *ft.heapFloatPtr );
+    return FloatType::multiply( *ft.valuePtr );
 }
 
 FloatType& FloatType::divide( const FloatType& ft )
 {
-    return divide( *ft.heapFloatPtr );
+    return divide( *ft.valuePtr );
 }
 
 struct IntType
 {
-    IntType( int x ) : heapIntPtr( new int(x) ) { }
+    IntType( int x ) : valuePtr( new int(x) ) { }
     ~IntType()
     {   
-        delete heapIntPtr;
-        heapIntPtr = nullptr;
+        delete valuePtr;
+        valuePtr = nullptr;
     }
-    int* heapIntPtr = nullptr;
+    int* valuePtr = nullptr;
     
     IntType& add( int x );
     IntType& subtract( int x );
     IntType& multiply( int x );
     IntType& divide( int x );
+
+    IntType& add( const IntType& it );
+    IntType& add( const FloatType& ft );
+    IntType& add( const DoubleType& dt );
+
+    IntType& subtract( const IntType& it );
+    IntType& subtract( const FloatType& ft );
+    IntType& subtract( const DoubleType& dt );
+
+    IntType& multiply( const IntType& it );
+    IntType& multiply( const FloatType& ft );
+    IntType& multiply( const DoubleType& dt );
+
+    IntType& divide( const IntType& it );
+    IntType& divide( const FloatType& ft );
+    IntType& divide( const DoubleType& dt );
 };
 
 IntType& IntType::add( int x )
 {
-    *heapIntPtr += x;
+    *valuePtr += x;
     return *this;
 }
 
 IntType& IntType::subtract( int x )
 {
-    *heapIntPtr -= x;
+    *valuePtr -= x;
     return *this;
 }
 
 IntType& IntType::multiply( int x )
 {
-    *heapIntPtr *= x;
+    *valuePtr *= x;
     return *this;
 }
 
@@ -187,44 +203,80 @@ IntType& IntType::divide( int x )
     if ( x == 0 )
     {
         std::cout << "Warning! Int Division by 0 not possible!" << std::endl;
-        *heapIntPtr = 0;
+        *valuePtr = 0;
         return *this;
     }
-    *heapIntPtr /= x;
+    *valuePtr /= x;
     return *this;  
+}
+
+IntType& IntType::add( const IntType& it )
+{
+    return add( *it.valuePtr );
+}
+
+IntType& IntType::subtract( const IntType& it )
+{
+    return subtract( *it.valuePtr );
+}
+
+IntType& IntType::multiply( const IntType& it )
+{
+    return multiply( *it.valuePtr );
+}
+
+IntType& IntType::divide( const IntType& it )
+{
+    return divide( *it.valuePtr );
 }
 
 struct DoubleType
 {
-    DoubleType( double x ) : heapDoublePtr( new double(x) ) { }
+    DoubleType( double x ) : valuePtr( new double(x) ) { }
     ~DoubleType()
     {   
-        delete heapDoublePtr;
-        heapDoublePtr = nullptr;
+        delete valuePtr;
+        valuePtr = nullptr;
     }
-    double* heapDoublePtr = nullptr;
+    double* valuePtr = nullptr;
     
     DoubleType& add( double x );
     DoubleType& subtract( double x );
     DoubleType& multiply( double x );
     DoubleType& divide( double x );
+
+    DoubleType& add( const DoubleType& dt );
+    DoubleType& add( const IntType& dt );
+    DoubleType& add( const FloatType& dt );
+
+    DoubleType& subtract( const DoubleType& dt );
+    DoubleType& subtract( const IntType& dt );
+    DoubleType& subtract( const FloatType& dt );
+
+    DoubleType& multiply( const DoubleType& dt );
+    DoubleType& multiply( const IntType& dt );
+    DoubleType& multiply( const FloatType& dt );
+
+    DoubleType& divide( const DoubleType& dt );
+    DoubleType& divide( const IntType& dt );
+    DoubleType& divide( const FloatType& dt );    
 };
 
 DoubleType& DoubleType::add( double x )
 {
-    *heapDoublePtr += x;
+    *valuePtr += x;
     return *this;
 }
 
 DoubleType& DoubleType::subtract( double x )
 {
-    *heapDoublePtr -= x;
+    *valuePtr -= x;
     return *this;
 }
 
 DoubleType& DoubleType::multiply( double x )
 {
-    *heapDoublePtr *= x;
+    *valuePtr *= x;
     return *this;
 }
 
@@ -234,95 +286,178 @@ DoubleType& DoubleType::divide( double x )
     {
         std::cout << "Warning! Double division by 0" << std::endl;
     }
-    *heapDoublePtr /= x;
+    *valuePtr /= x;
     return *this;
 }
 
+DoubleType& DoubleType::add( const DoubleType& dt )
+{
+    return add( *dt.valuePtr );
+}
+
+DoubleType& DoubleType::subtract( const DoubleType& dt )
+{
+    return subtract( *dt.valuePtr );
+}
+
+DoubleType& DoubleType::multiply( const DoubleType& dt )
+{
+    return multiply( *dt.valuePtr );
+}
+
+DoubleType& DoubleType::divide( const DoubleType& dt )
+{
+    return divide( *dt.valuePtr );
+}
+
 // Custom UDT Math Functions
+// FloatType
 
 FloatType& FloatType::add( const IntType& it )
 {
-    return add( *it.heapIntPtr );
+    return add( *it.valuePtr );
 }
 
 FloatType& FloatType::add( const DoubleType& dt )
 {
-    return add( *dt.heapDoublePtr );
+    return add( *dt.valuePtr );
 }
 
 FloatType& FloatType::subtract( const IntType& it )
 {
-    return subtract( *it.heapIntPtr );
+    return subtract( *it.valuePtr );
 }
 
 FloatType& FloatType::subtract( const DoubleType& dt )
 {
-    return subtract( *dt.heapDoublePtr );
+    return subtract( *dt.valuePtr );
 }
 
 FloatType& FloatType::multiply( const IntType& it )
 {
-    return multiply( *it.heapIntPtr );
+    return multiply( *it.valuePtr );
 }
 
 FloatType& FloatType::multiply( const DoubleType& dt )
 {
-    return multiply( *dt.heapDoublePtr );
+    return multiply( *dt.valuePtr );
 }
 
 FloatType& FloatType::divide( const IntType& it )
 {
-    return multiply( *it.heapIntPtr );
+    return multiply( *it.valuePtr );
 }
 
 FloatType& FloatType::divide( const DoubleType& dt )
 {
-    return divide( *dt.heapDoublePtr );
+    return divide( *dt.valuePtr );
+}
+
+// IntType
+IntType& IntType::add( const FloatType& ft )
+{
+    return add( *ft.valuePtr );
+}
+
+IntType& IntType::add( const DoubleType& dt )
+{
+    return add( *dt.valuePtr );
+}
+
+IntType& IntType::subtract( const FloatType& ft )
+{
+    return subtract( *ft.valuePtr );
+}
+
+IntType& IntType::subtract( const DoubleType& dt )
+{
+    return subtract( *dt.valuePtr );
+}
+
+IntType& IntType::multiply( const FloatType& ft )
+{
+    return multiply( *ft.valuePtr );
+}
+
+IntType& IntType::multiply( const DoubleType& dt )
+{
+    return multiply( *dt.valuePtr );
+}
+
+IntType& IntType::divide( const FloatType& ft )
+{
+    return multiply( *ft.valuePtr );
+}
+
+IntType& IntType::divide( const DoubleType& dt )
+{
+    return divide( *dt.valuePtr );
+}
+
+// DoubleType
+DoubleType& DoubleType::add( const FloatType& ft )
+{
+    return add( *ft.valuePtr );
+}
+
+DoubleType& DoubleType::add( const IntType& it )
+{
+    return add( *it.valuePtr );
+}
+
+DoubleType& DoubleType::subtract( const FloatType& ft )
+{
+    return subtract( *ft.valuePtr );
+}
+
+DoubleType& DoubleType::subtract( const IntType& it )
+{
+    return subtract( *it.valuePtr );
+}
+
+DoubleType& DoubleType::multiply( const FloatType& ft )
+{
+    return multiply( *ft.valuePtr );
+}
+
+DoubleType& DoubleType::multiply( const IntType& it )
+{
+    return multiply( *it.valuePtr );
+}
+
+DoubleType& DoubleType::divide( const FloatType& ft )
+{
+    return multiply( *ft.valuePtr );
+}
+
+DoubleType& DoubleType::divide( const IntType& it )
+{
+    return divide( *it.valuePtr );
 }
 
 int main()
 {
     std::cout << "good to go!\n" << std::endl;
+
+    FloatType ft(0.1f);
+    IntType it(3);
+    DoubleType dt(2.4);
     
-    FloatType ft(5.f);
-    IntType it(5);
-    DoubleType dt(234.352);
+    std::cout << "Multiplying ft, it, and dt together gives: " << *ft.multiply( it ).multiply( dt ).valuePtr << std::endl;
 
-    FloatType ft2(2.f);
-
-    std::cout << *ft.add( ft2 ).add( it ).add( dt ).divide( it ).multiply( ft2 ).subtract( ft2 ).subtract( dt ).heapFloatPtr;
     std::cout << "\n";
 
-    // auto resultf = ft.add(1.2f);
-    // auto resultf2 = ft.divide(3.2f);
-    // auto resultf3 = ft.multiply(5.45f);
+    std::cout << "Float: adding 2 to ft, subtracting 'it', and adding 'dt' results in: " << *ft.add(2.f).subtract( it ).add( dt ).valuePtr << std::endl;
 
-    // auto resultChain = ft.add(2.43f).multiply(3.4f);
+    std::cout << "\n";
+ 
+    std::cout << "Integer: adding ft to it, subtracting 3, dividing by ft, and multiplying by dt, results in: " << *it.add( ft ).subtract(3).divide( ft ).multiply( dt ).valuePtr << std::endl;
 
-    // auto resulti = it.multiply(7, 9);
-    // auto resulti2 = it.divide(3, 0);
-    // auto resulti3 = it.subtract(6, 13);
+    std::cout << "\n";
 
-    // auto resultd = dt.multiply(2, 8);
-    // auto resultd2 = dt.divide(7, 5.2);
-    // auto resultd3 = dt.divide(6, 0);
+    std::cout << "Double: subtracting ft from dt, multiplying by it, dividing by 3, adding 13, multiplying by 2.32 results in:  " << *dt.subtract( ft ).multiply( it ).divide( 3 ).add(13).multiply(2.32).valuePtr << std::endl;
 
-    // std::cout << "\nResult of ft.add: " << *ft.heapFloatPtr << std::endl;
-    // std::cout << "Result of ft.divide: " << *ft.heapFloatPtr << std::endl;
-    // std::cout << "Result of ft.multiply: " << *ft.heapFloatPtr << std::endl;
+    std::cout << "\n";
 
-    std::cout << "Result of ft.add().multiply().subtract().divide(): " << *ft.add(3.2f).multiply(0.84f).subtract(2.53f).divide(2.3f).heapFloatPtr << std::endl;
-
-    std::cout << "Result of it.add().multiply().subtract().divide(): " << *it.add(7).multiply(-3).subtract(-15).divide(3).heapIntPtr << std::endl;
-
-    std::cout << "Result of dt.add().multiply().subtract().divide(): " << *dt.add(5.3).multiply(-2.46).subtract(135.6).divide(-45.6).heapDoublePtr << std::endl;
-
-    // std::cout << "\nResult of it.multiply: " << resulti << std::endl;
-    // std::cout << "Result of it.divide: " << resulti2 << std::endl;
-    // std::cout << "Result of it.subtract: " << resulti3 << std::endl; 
-
-    // std::cout << "\nResult of dt.multiply: " << resultd << std::endl;
-    // std::cout << "Result of dt.divide: " << resultd2 << std::endl; 
-    // std::cout << "Result of dt.divide: " << resultd3 << std::endl;
-   
+    std::cout << "Multiplying ft, it, and dt together gives: " << *ft.multiply( it ).multiply( dt ).valuePtr << std::endl;
 }
