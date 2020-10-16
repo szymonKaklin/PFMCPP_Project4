@@ -1,4 +1,3 @@
-
 /*
  Project 4 - Part 2 / 9
  Video: Chapter 3 Part 6
@@ -16,32 +15,19 @@ New/This/Pointers/References conclusion
  */
 #include <iostream>
 
-struct HeapA;
-struct A
-{ 
-    A( HeapA& heapA_ ) : heapA( heapA_ ) { }
-    HeapA& heapA;
-};
+struct A { };
 
-struct AWrapper
-{
-    AWrapper( A* ptr ) : pointerToA( ptr ) { }
-    ~AWrapper()
-    {
-        delete pointerToA;
-    }
-    A* pointerToA = nullptr;
-};
-
-// Thi is a struct named 'HeapA' which owns an instance of 'A' , which is created on the heap via the AWrapper struct so that deletion of pointer is taken care of
 struct HeapA
 {
-    HeapA() : a( new A( *this ) ) { }
-    AWrapper a;
+    ~HeapA()
+    {   
+        delete a;
+        a = nullptr;
+    }
+    A* a = new A();
 };
 
-
- /*
+ /* 
  1) Edit your 3 structs so that they own a heap-allocated primitive type without using smart pointers  
          IntType should own a heap-allocated int, for example.
  
@@ -81,141 +67,181 @@ send me a DM to check your pull request
  Wait for my code review.
  */
 
-
-
-
-
-
 struct FloatType
 {
-    float add( float lhs, float rhs );
-    float subtract( float lhs, float rhs );
-    float multiply( float lhs, float rhs );
-    float divide( float lhs, float rhs );
+    FloatType( float x ) : heapFloatPtr( new float(x) ) { }
+    ~FloatType()
+    {
+        delete heapFloatPtr;
+        heapFloatPtr = nullptr;
+    }
+    float* heapFloatPtr = nullptr;
+    
+    FloatType& add( float x );
+    FloatType& subtract( float x );
+    FloatType& multiply( float x );
+    FloatType& divide( float x );
 };
 
-float FloatType::add( float lhs, float rhs)
+FloatType& FloatType::add( float x )
 {
-    return lhs + rhs;
+    *heapFloatPtr += x;
+    return *this;
 }
 
-float FloatType::subtract( float lhs, float rhs)
+FloatType& FloatType::subtract( float x )
 {
-    return lhs - rhs;
+    *heapFloatPtr -= x;
+    return *this;
 }
 
-float FloatType::multiply( float lhs, float rhs)
+FloatType& FloatType::multiply( float x )
 {
-    return lhs * rhs;
+    *heapFloatPtr *= x;
+    return *this;
 }
 
-float FloatType::divide( float lhs, float rhs)
+FloatType& FloatType::divide( float x )
 {
-    if (std::abs(rhs - 0.0f) < 0.0000000001f )
+    if ( x == 0.f )
     {
         std::cout << "Warning! Float division by 0" << std::endl;
     }
-    return lhs / rhs;
+    *heapFloatPtr /= x;
+    return *this;
 }
 
 struct IntType
 {
-    int add( int lhs, int rhs );
-    int subtract( int lhs, int rhs );
-    int multiply( int lhs, int rhs );
-    int divide( int lhs, int rhs );
+    IntType( int x ) : heapIntPtr( new int(x) ) { }
+    ~IntType()
+    {   
+        delete heapIntPtr;
+        heapIntPtr = nullptr;
+    }
+    int* heapIntPtr = nullptr;
+    
+    IntType& add( int x );
+    IntType& subtract( int x );
+    IntType& multiply( int x );
+    IntType& divide( int x );
 };
 
-int IntType::add(int lhs, int rhs)
+IntType& IntType::add( int x )
 {
-    return lhs + rhs;
+    *heapIntPtr += x;
+    return *this;
 }
 
-int IntType::subtract(int lhs, int rhs)
+IntType& IntType::subtract( int x )
 {
-    return lhs - rhs;
+    *heapIntPtr -= x;
+    return *this;
 }
 
-int IntType::multiply(int lhs, int rhs)
+IntType& IntType::multiply( int x )
 {
-    return lhs * rhs;
+    *heapIntPtr *= x;
+    return *this;
 }
 
-int IntType::divide(int lhs, int rhs)
+IntType& IntType::divide( int x )
 {
-    if ( rhs == 0 )
+    if ( x == 0 )
     {
         std::cout << "Warning! Int Division by 0 not possible!" << std::endl;
-        return 0;
+        *heapIntPtr = 0;
+        return *this;
     }
-    return lhs / rhs;  
+    *heapIntPtr /= x;
+    return *this;  
 }
 
 struct DoubleType
 {
-    double add( double lhs, double rhs );
-    double subtract( double lhs, double rhs );
-    double multiply( double lhs, double rhs );
-    double divide( double lhs, double rhs );
+    DoubleType( double x ) : heapDoublePtr( new double(x) ) { }
+    ~DoubleType()
+    {   
+        delete heapDoublePtr;
+        heapDoublePtr = nullptr;
+    }
+    double* heapDoublePtr = nullptr;
+    
+    DoubleType& add( double x );
+    DoubleType& subtract( double x );
+    DoubleType& multiply( double x );
+    DoubleType& divide( double x );
 };
 
-double DoubleType::add(double lhs, double rhs)
+DoubleType& DoubleType::add( double x )
 {
-    return lhs + rhs;
+    *heapDoublePtr += x;
+    return *this;
 }
 
-double DoubleType::subtract(double lhs, double rhs)
+DoubleType& DoubleType::subtract( double x )
 {
-    return lhs - rhs;
+    *heapDoublePtr -= x;
+    return *this;
 }
 
-double DoubleType::multiply(double lhs, double rhs)
+DoubleType& DoubleType::multiply( double x )
 {
-    return lhs * rhs;
+    *heapDoublePtr *= x;
+    return *this;
 }
 
-double DoubleType::divide(double lhs, double rhs)
+DoubleType& DoubleType::divide( double x )
 {
-    if (std::abs(rhs - 0) < 0.0000000001 )
+    if ( x == 0. )
     {
         std::cout << "Warning! Double division by 0" << std::endl;
     }
-    return lhs / rhs;
+    *heapDoublePtr /= x;
+    return *this;
 }
-
-
 
 
 int main()
 {
     std::cout << "good to go!\n" << std::endl;
     
-    FloatType ft;
-    IntType it;
-    DoubleType dt;
+    FloatType ft(5.f);
+    IntType it(5);
+    DoubleType dt(234.352);
 
-    auto resultf = ft.add(3.2f, 2.3f);
-    auto resultf2 = ft.divide(5.3f, 0.0f);
-    auto resultf3 = ft.multiply(18.233f, 42.541f);
+    FloatType ft2(2.f);
 
-    auto resulti = it.multiply(7, 9);
-    auto resulti2 = it.divide(3, 0);
-    auto resulti3 = it.subtract(6, 13);
+    // auto resultf = ft.add(1.2f);
+    // auto resultf2 = ft.divide(3.2f);
+    // auto resultf3 = ft.multiply(5.45f);
 
-    auto resultd = dt.multiply(2, 8);
-    auto resultd2 = dt.divide(7, 5.2);
-    auto resultd3 = dt.divide(6, 0);
+    // auto resultChain = ft.add(2.43f).multiply(3.4f);
 
-    std::cout << "\nResult of ft.add: " << resultf << std::endl;
-    std::cout << "Result of ft.divide: " << resultf2 << std::endl;
-    std::cout << "Result of ft.multiply: " << resultf3 << std::endl;
+    // auto resulti = it.multiply(7, 9);
+    // auto resulti2 = it.divide(3, 0);
+    // auto resulti3 = it.subtract(6, 13);
 
-    std::cout << "\nResult of it.multiply: " << resulti << std::endl;
-    std::cout << "Result of it.divide: " << resulti2 << std::endl;
-    std::cout << "Result of it.subtract: " << resulti3 << std::endl; 
+    // auto resultd = dt.multiply(2, 8);
+    // auto resultd2 = dt.divide(7, 5.2);
+    // auto resultd3 = dt.divide(6, 0);
 
-    std::cout << "\nResult of dt.multiply: " << resultd << std::endl;
-    std::cout << "Result of dt.divide: " << resultd2 << std::endl; 
-    std::cout << "Result of dt.divide: " << resultd3 << std::endl;
+    // std::cout << "\nResult of ft.add: " << *ft.heapFloatPtr << std::endl;
+    // std::cout << "Result of ft.divide: " << *ft.heapFloatPtr << std::endl;
+    // std::cout << "Result of ft.multiply: " << *ft.heapFloatPtr << std::endl;
+
+    std::cout << "Result of ft.add().multiply().subtract().divide(): " << *ft.add(3.2f).multiply(0.84f).subtract(2.53f).divide(2.3f).heapFloatPtr << std::endl;
+
+    std::cout << "Result of it.add().multiply().subtract().divide(): " << *it.add(7).multiply(-3).subtract(-15).divide(3).heapIntPtr << std::endl;
+
+    std::cout << "Result of dt.add().multiply().subtract().divide(): " << *dt.add(5.3).multiply(-2.46).subtract(135.6).divide(-45.6).heapDoublePtr << std::endl;
+
+    // std::cout << "\nResult of it.multiply: " << resulti << std::endl;
+    // std::cout << "Result of it.divide: " << resulti2 << std::endl;
+    // std::cout << "Result of it.subtract: " << resulti3 << std::endl; 
+
+    // std::cout << "\nResult of dt.multiply: " << resultd << std::endl;
+    // std::cout << "Result of dt.divide: " << resultd2 << std::endl; 
+    // std::cout << "Result of dt.divide: " << resultd3 << std::endl;
    
 }
