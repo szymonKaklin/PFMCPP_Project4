@@ -179,7 +179,7 @@ FloatType& FloatType::subtract( const FloatType& ft )
 
 FloatType& FloatType::multiply( const FloatType& ft )
 {
-    return FloatType::multiply( *ft.value );
+    return multiply( *ft.value );
 }
 
 FloatType& FloatType::divide( const FloatType& ft )
