@@ -41,46 +41,7 @@ Create a branch named Part6
 build/run to make sure you don't have any errors
  
  If you need to see an example, look at https://bitbucket.org/MatkatMusic/pfmcpptasks/src/master/Projects/Project4/Part6Example.cpp
- */
 
-void part6()
-{
-    FloatType ft3(3.0f);
-    DoubleType dt3(4.0);
-    IntType it3(5);
-    
-    std::cout << "Calling FloatType::apply() using a lambda (adds 7.0f) and FloatType as return type:" << std::endl;
-    std::cout << "ft3 before: " << ft3 << std::endl;
-    ft3.apply( [](){} );
-    std::cout << "ft3 after: " << ft3 << std::endl;
-    std::cout << "Calling FloatType::apply() using a free function (adds 7.0f) and void as return type:" << std::endl;
-    std::cout << "ft3 before: " << ft3 << std::endl;
-    ft3.apply(myFloatFreeFunct);
-    std::cout << "ft3 after: " << ft3 << std::endl;
-    std::cout << "---------------------\n" << std::endl;
-
-    std::cout << "Calling DoubleType::apply() using a lambda (adds 6.0) and DoubleType as return type:" << std::endl;
-    std::cout << "dt3 before: " << dt3 << std::endl;
-    dt3.apply( [](){} );
-    std::cout << "dt3 after: " << dt3 << std::endl;
-    std::cout << "Calling DoubleType::apply() using a free function (adds 6.0) and void as return type:" << std::endl;
-    std::cout << "dt3 before: " << dt3 << std::endl;
-    dt3.apply(myDoubleFreeFunct);
-    std::cout << "dt3 after: " << dt3 << std::endl;
-    std::cout << "---------------------\n" << std::endl;
-
-    std::cout << "Calling IntType::apply() using a lambda (adds 5) and IntType as return type:" << std::endl;
-    std::cout << "it3 before: " << it3 << std::endl;
-    it3.apply( [](){} );
-    std::cout << "it3 after: " << it3 << std::endl;
-    std::cout << "Calling IntType::apply() using a free function (adds 5) and void as return type:" << std::endl;
-    std::cout << "it3 before: " << it3 << std::endl;
-    it3.apply(myIntFreeFunct);
-    std::cout << "it3 after: " << it3 << std::endl;
-    std::cout << "---------------------\n" << std::endl;    
-}
-
-/*
 your program should generate the following output EXACTLY.
 This includes the warnings.
 The output should have zero warnings.
@@ -208,6 +169,7 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 
 #include <iostream>
 #include <cmath>
+#include <functional>
 
 struct A { };
 
@@ -238,6 +200,9 @@ public:
         value = nullptr;
     }
     
+    FloatType& apply( std::function<FloatType&( float& )> f );
+    FloatType& apply( void( *f )( float& ) );
+
     FloatType& pow(const IntType& x);
     FloatType& pow(const FloatType& x);
     FloatType& pow(const DoubleType& x);
@@ -264,6 +229,9 @@ public:
         value = nullptr;
     }
 
+    IntType& apply( std::function<IntType&( int& )> f );
+    IntType& apply( void( *f )( int& ) );
+
     IntType& pow(const IntType& x);
     IntType& pow(const FloatType& x);
     IntType& pow(const DoubleType& x);
@@ -289,6 +257,9 @@ public:
         delete value;
         value = nullptr;
     }
+
+    DoubleType& apply( std::function<DoubleType&( double& )> f );
+    DoubleType& apply( void( *f )( double& ) );
     
     DoubleType& pow(const IntType& x);
     DoubleType& pow(const FloatType& x);
@@ -303,6 +274,24 @@ public:
 };
 
 /*-------------------------------------------------------------------------------*/
+FloatType& FloatType::apply( std::function<FloatType&( float& )> f )
+{
+    if( f != nullptr )
+    {
+        f( *value );
+    }
+    return *this;
+}
+
+FloatType& FloatType::apply( void( *f )( float& ))
+{
+    if( f != nullptr )
+    {
+        f( *value );
+    }
+    return *this;
+}
+
 FloatType& FloatType::powInternal(float x)
 {
     *value = std::pow( *value, x );
@@ -358,6 +347,24 @@ FloatType& FloatType::operator/=( float x )
 }
 
 /*-------------------------------------------------------------------------------*/
+IntType& IntType::apply( std::function<IntType&( int& )> f )
+{
+    if( f != nullptr )
+    {
+        f( *value );
+    }
+    return *this;
+}
+
+IntType& IntType::apply( void( *f )( int& ) )
+{
+    if( f != nullptr )
+    {
+        f( *value );
+    }
+    return *this;
+}
+
 IntType& IntType::powInternal(int x)
 {
     *value = static_cast<int>(std::pow( *value, x ));
@@ -414,6 +421,24 @@ IntType& IntType::operator/=( int x )
 }
 
 /*-------------------------------------------------------------------------------*/
+DoubleType& DoubleType::apply( std::function<DoubleType&( double& )> f )
+{
+    if( f != nullptr )
+    {
+        f( *value );
+    }
+    return *this;
+}
+
+DoubleType& DoubleType::apply( void( *f )( double& ) )
+{
+    if( f != nullptr )
+    {
+        f( *value );
+    }
+    return *this;
+}
+
 DoubleType& DoubleType::powInternal(double x)
 {
     *value = std::pow( *value, x );
@@ -550,6 +575,22 @@ void part3()
     std::cout << "(IntType + DoubleType + FloatType) x 24 = " << it << std::endl;
 }
 
+/*-------------------------------------------------------------------------------*/
+void myFloatFreeFunct( float& value )
+{
+    value += 7.0f;
+}
+
+void myIntFreeFunct( int& value )
+{
+    value += 5.0f;
+}
+
+void myDoubleFreeFunct( double& value )
+{
+    value += 6.0;
+}
+
 void part4()
 {
     // ------------------------------------------------------------
@@ -632,6 +673,43 @@ void part4()
     p3.multiply(it2); 
     p3.toString();   
     std::cout << "---------------------\n" << std::endl;
+}
+
+void part6()
+{
+    FloatType ft3(3.0f);
+    DoubleType dt3(4.0);
+    IntType it3(5);
+    
+    std::cout << "Calling FloatType::apply() using a lambda (adds 7.0f) and FloatType as return type:" << std::endl;
+    std::cout << "ft3 before: " << ft3 << std::endl;
+    ft3.apply( [&]( float& a ) -> FloatType& { a += 7.0f; return ft3; } );
+    std::cout << "ft3 after: " << ft3 << std::endl;
+    std::cout << "Calling FloatType::apply() using a free function (adds 7.0f) and void as return type:" << std::endl;
+    std::cout << "ft3 before: " << ft3 << std::endl;
+    ft3.apply(myFloatFreeFunct);
+    std::cout << "ft3 after: " << ft3 << std::endl;
+    std::cout << "---------------------\n" << std::endl;
+
+    std::cout << "Calling DoubleType::apply() using a lambda (adds 6.0) and DoubleType as return type:" << std::endl;
+    std::cout << "dt3 before: " << dt3 << std::endl;
+    dt3.apply( [&]( double& a ) -> DoubleType& { a += 6.0; return dt3; } );
+    std::cout << "dt3 after: " << dt3 << std::endl;
+    std::cout << "Calling DoubleType::apply() using a free function (adds 6.0) and void as return type:" << std::endl;
+    std::cout << "dt3 before: " << dt3 << std::endl;
+    dt3.apply(myDoubleFreeFunct);
+    std::cout << "dt3 after: " << dt3 << std::endl;
+    std::cout << "---------------------\n" << std::endl;
+
+    std::cout << "Calling IntType::apply() using a lambda (adds 5) and IntType as return type:" << std::endl;
+    std::cout << "it3 before: " << it3 << std::endl;
+    it3.apply( [&]( int& a ) -> IntType& { a += 5; return it3; } );
+    std::cout << "it3 after: " << it3 << std::endl;
+    std::cout << "Calling IntType::apply() using a free function (adds 5) and void as return type:" << std::endl;
+    std::cout << "it3 before: " << it3 << std::endl;
+    it3.apply(myIntFreeFunct);
+    std::cout << "it3 after: " << it3 << std::endl;
+    std::cout << "---------------------\n" << std::endl;    
 }
 
 int main()
@@ -719,6 +797,8 @@ int main()
     part3();
 
     part4();
+
+    part6();
 
     std::cout << "good to go!\n";
 
