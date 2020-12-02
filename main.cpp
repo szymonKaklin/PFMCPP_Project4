@@ -221,6 +221,58 @@ struct IntType;
 struct DoubleType;
 
 /*-------------------------------------------------------------------------------*/
+template<typename numType>
+struct Numeric
+{
+using Type = numType;
+private:
+    std::unique_ptr<Type> value;
+    Numeric& powInternal(Type x)
+    {
+        *value = std::pow( *value, x );
+        return *this;
+    }
+public:
+    Numeric( Type x ) : value( std::make_unique<Type>(x) ) { }
+
+    Numeric& apply( std::function<Numeric&( std::unique_ptr<Type>& )> f );
+    Numeric& apply( void( *f )( std::unique_ptr<Type>& ) );
+
+    Numeric& pow(const Numeric& x)
+    {
+        return powInternal(static_cast<Type>(x));
+    }
+
+    Numeric& operator+=( Type x )
+    {
+        *value += x;
+        return *this;
+    }
+    Numeric& operator-=( Type x )
+    {
+        *value -= x;
+        return *this;
+    }
+    Numeric& operator*=( Type x )
+    {
+        *value *= x;
+        return *this;
+    }
+    // FIX THIS NOT WORKING, MAIN COMMENTED OUT
+    Numeric& operator/=( Type x )
+    {
+        if ( x == 0 )
+        {
+            std::cout << "warning: division by zero!" << std::endl;
+        }
+        *value /= x;
+        return *this;
+    }
+
+    operator Type() const { return *value; }
+};
+
+/*-------------------------------------------------------------------------------*/
 struct FloatType
 {
 private:
@@ -559,10 +611,10 @@ Point& Point::multiply(DoubleType& m)
 /*-------------------------------------------------------------------------------*/
 void part3()
 {
-    FloatType ft( 5.5f );
-    DoubleType dt( 11.1 );
-    IntType it ( 34 );
-    DoubleType pi( 3.14 );
+    Numeric<float> ft( 5.5f );
+    Numeric<double> dt( 11.1 );
+    Numeric<int> it ( 34 );
+    Numeric<double> pi( 3.14 );
 
     ft *= ft;
     ft *= ft;
@@ -573,16 +625,16 @@ void part3()
     dt += static_cast<double>(it);
     std::cout << "The result of DoubleType times 3 plus IntType is : " << dt << std::endl;
 
-    it /= static_cast<int>(pi);
+    //it /= static_cast<int>(pi);
     it *= static_cast<int>(dt);
     it -= static_cast<int>(ft);
     std::cout << "The result of IntType divided by 3.14 multiplied by DoubleType minus FloatType is: " << it << std::endl;
 
     std::cout << "An operation followed by attempts to divide by 0, which are ignored and warns user: " << std::endl;
     it *= it;
-    it /= 0;
-    it /= static_cast<int>(0.f);
-    it /= static_cast<int>(0.0);
+    //it /= 0;
+    //it /= static_cast<int>(0.f);
+    //it /= static_cast<int>(0.0);
     std::cout << it << std::endl;
     
     it *= static_cast<int>(ft);
@@ -788,9 +840,13 @@ int main()
     HeapA heapA; 
 
     //assign heap primitives
-    FloatType ft ( 2.0f );
-    DoubleType dt ( 2 );
-    IntType it ( 2 ) ;
+    // FloatType ft ( 2.0f );
+    // DoubleType dt ( 2 );
+    // IntType it ( 2 ) ;
+
+    Numeric<float> ft ( 2.0f );
+    Numeric<double> dt ( 2 );
+    Numeric<int> it ( 2 ) ;
 
     ft += 2.0f;
     std::cout << "FloatType add result=" << ft << std::endl;
@@ -850,17 +906,17 @@ int main()
     // --------
     std::cout << "Intercept division by 0 " << std::endl;
 
-    std::cout << "New value of it = it / 0 = ";
-    it /= 0;
-    std::cout << it << std::endl;
+    // std::cout << "New value of it = it / 0 = ";
+    // it /= 0;
+    // std::cout << it << std::endl;
     
-    std::cout << "New value of ft = ft / 0 = ";
-    ft /= 0;
-    std::cout << ft << std::endl;
+    // std::cout << "New value of ft = ft / 0 = ";
+    // ft /= 0;
+    // std::cout << ft << std::endl;
     
-    std::cout << "New value of dt = dt / 0 = ";
-    dt /= 0;
-    std::cout << dt << std::endl;
+    // std::cout << "New value of dt = dt / 0 = ";
+    // dt /= 0;
+    // std::cout << dt << std::endl;
 
     std::cout << "---------------------\n" << std::endl; 
 
