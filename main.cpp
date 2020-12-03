@@ -371,19 +371,10 @@ void part3()
 }
 
 /*-------------------------------------------------------------------------------*/
-void myFloatFreeFunct( float& value )
+template<typename numType>
+void myFreeFunct( std::unique_ptr<numType>& value )
 {
-    value += 7.0f;
-}
-
-void myIntFreeFunct( int& value )
-{
-    value += 5.0f;
-}
-
-void myDoubleFreeFunct( double& value )
-{
-    value += 6.0;
+    *value += static_cast<numType>(7.0f);
 }
 
 // void part4()
@@ -484,7 +475,7 @@ void part6()
     std::cout << "ft3 after: " << ft3 << std::endl;
     std::cout << "Calling FloatType::apply() using a free function (adds 7.0f) and void as return type:" << std::endl;
     std::cout << "ft3 before: " << ft3 << std::endl;
-    //ft3.apply(myFloatFreeFunct);
+    ft3.apply(myFreeFunct);
     std::cout << "ft3 after: " << ft3 << std::endl;
     std::cout << "---------------------\n" << std::endl;
 
@@ -494,9 +485,9 @@ void part6()
     dt3.apply( [&]( std::unique_ptr<decltype(dt3)::Type>& a ) -> decltype(dt3)& { *a += 6.0; return dt3; } );
 
     std::cout << "dt3 after: " << dt3 << std::endl;
-    std::cout << "Calling DoubleType::apply() using a free function (adds 6.0) and void as return type:" << std::endl;
+    std::cout << "Calling DoubleType::apply() using a free function (adds 7.0) and void as return type:" << std::endl;
     std::cout << "dt3 before: " << dt3 << std::endl;
-    //dt3.apply(myDoubleFreeFunct);
+    dt3.apply(myFreeFunct);
     std::cout << "dt3 after: " << dt3 << std::endl;
     std::cout << "---------------------\n" << std::endl;
 
@@ -506,9 +497,9 @@ void part6()
     it3.apply( [&]( std::unique_ptr<decltype(it3)::Type>& a ) -> decltype(it3)& { *a += 5; return it3; } );
 
     std::cout << "it3 after: " << it3 << std::endl;
-    std::cout << "Calling IntType::apply() using a free function (adds 5) and void as return type:" << std::endl;
+    std::cout << "Calling IntType::apply() using a free function (adds 7) and void as return type:" << std::endl;
     std::cout << "it3 before: " << it3 << std::endl;
-    //it3.apply(myIntFreeFunct);
+    it3.apply(myFreeFunct);
     std::cout << "it3 after: " << it3 << std::endl;
     std::cout << "---------------------\n" << std::endl;    
 }
@@ -569,14 +560,9 @@ int main()
     //testing instruction 0
     HeapA heapA; 
 
-    //assign heap primitives
-    // FloatType ft ( 2.0f );
-    // DoubleType dt ( 2 );
-    // IntType it ( 2 ) ;
-
-    Numeric<float> ft ( 2.0f );
-    Numeric<double> dt ( 2 );
-    Numeric<int> it ( 2 ) ;
+    Numeric ft ( 2.0f );
+    Numeric dt ( 2 );
+    Numeric it ( 2 ) ;
 
     ft += 2.0f;
     std::cout << "FloatType add result=" << ft << std::endl;
