@@ -204,6 +204,8 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 #include <cmath>
 #include <functional>
 #include <memory>
+#include <type_traits>
+#include <limits>
 
 struct A { };
 
@@ -229,7 +231,7 @@ private:
     std::unique_ptr<Type> value;
     Numeric& powInternal(Type x)
     {
-        *value = std::pow( *value, x );
+        *value = static_cast<Type>(std::pow( *value, x ));
         return *this;
     }
 public:
@@ -255,7 +257,7 @@ public:
 
     Numeric& pow(const Numeric& x)
     {
-        return powInternal(static_cast<Type>(x));
+        return powInternal( x );
     }
 
     Numeric& operator+=( Type x )
@@ -273,13 +275,32 @@ public:
         *value *= x;
         return *this;
     }
-    // FIX THIS NOT WORKING, MAIN COMMENTED OUT
-    Numeric& operator/=( Type x )
+    
+    template<typename DivisorType>
+    Numeric& operator/=( DivisorType x )
     {
-        if ( x == 0 )
+        if ( std::is_same<int, Type>::value )
         {
-            std::cout << "warning: division by zero!" << std::endl;
+            if( std::is_same<int, DivisorType>::value )
+            {
+                if( static_cast<int>(x) == 0 )
+                {
+                    std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl;
+                    return *this;
+                }
+            }
+            else if ( x < std::numeric_limits<DivisorType>::epsilon() )
+            {
+                std::cout << "warning: floating point division by zero!" << std::endl;
+                return *this;
+            }
         }
+        else if( x < std::numeric_limits<DivisorType>::epsilon() )
+        {
+            std::cout << "warning: floating point division by zero!" << std::endl;
+            return *this;
+        }
+
         *value /= x;
         return *this;
     }
@@ -295,7 +316,7 @@ private:
     std::unique_ptr<Type> value;
     Numeric& powInternal(Type x)
     {
-        *value = std::pow( *value, x );
+        *value = static_cast<Type>(std::pow( *value, x ));
         return *this;
     }
 public:
@@ -329,14 +350,34 @@ public:
         *value *= x;
         return *this;
     }
-    // FIX THIS NOT WORKING, MAIN COMMENTED OUT
-    Numeric& operator/=( Type x )
+    
+    // NO NEED FOR THIS LONG /= OPERATOR IN Numeric<double>, fix
+    template<typename DivisorType>
+    Numeric& operator/=( DivisorType x )
     {
-        if ( x == 0 )
+        if ( std::is_same<int, Type>::value )
         {
-            std::cout << "warning: division by zero!" << std::endl;
+            if( std::is_same<int, DivisorType>::value )
+            {
+                if( static_cast<int>(x) == 0 )
+                {
+                    std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl;
+                    return *this;
+                }
+            }
+            else if ( x < std::numeric_limits<DivisorType>::epsilon() )
+            {
+                std::cout << "warning: floating point division by zero!" << std::endl;
+                return *this;
+            }
         }
-        *value /= x;
+        else if( x < std::numeric_limits<DivisorType>::epsilon() )
+        {
+            std::cout << "warning: floating point division by zero!" << std::endl;
+            return *this;
+        }
+
+        *value /= static_cast<double>(x);
         return *this;
     }
 
@@ -438,38 +479,38 @@ void part4()
     // ------------------------------------------------------------
     //                          Power tests
     // ------------------------------------------------------------
-    Numeric ft1(2);
-    Numeric dt1(2);
-    Numeric it1(2);    
+    Numeric<float> ft1(2);
+    Numeric<double> dt1(2);
+    Numeric<int> it1(2);    
     int floatExp = 2.0f;
     int doubleExp = 2.0;
     int intExp = 2;
-    Numeric itExp(2);
-    Numeric ftExp(2.0f);
-    Numeric dtExp(2.0);
+    Numeric<int> itExp(2);
+    Numeric<float> ftExp(2.0f);
+    Numeric<double> dtExp(2.0);
     
     // Power tests with FloatType
     std::cout << "Power tests with FloatType " << std::endl;
     std::cout << "pow(ft1, floatExp) = " << ft1 << "^" << floatExp << " = " << ft1.pow(floatExp)  << std::endl;
-    std::cout << "pow(ft1, itExp) = " << ft1 << "^" << itExp << " = " << ft1.pow(itExp)  << std::endl;
-    std::cout << "pow(ft1, ftExp) = " << ft1 << "^" << ftExp << " = " << ft1.pow(static_cast<float>(ftExp))  << std::endl;    
-    std::cout << "pow(ft1, dtExp) = " << ft1 << "^" << dtExp << " = " << ft1.pow(static_cast<double>(dtExp))  << std::endl;    
+    std::cout << "pow(ft1, itExp) = " << ft1 << "^" << itExp << " = " << ft1.pow(static_cast<float>(itExp))  << std::endl;
+    std::cout << "pow(ft1, ftExp) = " << ft1 << "^" << ftExp << " = " << ft1.pow(ftExp)  << std::endl;    
+    std::cout << "pow(ft1, dtExp) = " << ft1 << "^" << dtExp << " = " << ft1.pow(static_cast<float>(dtExp))  << std::endl;    
     std::cout << "---------------------\n" << std::endl;  
 
     // Power tests with DoubleType
     std::cout << "Power tests with DoubleType " << std::endl;
     std::cout << "pow(dt1, doubleExp) = " << dt1 << "^" << doubleExp << " = " << dt1.pow(intExp)  << std::endl;
-    std::cout << "pow(dt1, itExp) = " << dt1 << "^" << itExp << " = " << dt1.pow(itExp)  << std::endl;
-    std::cout << "pow(dt1, ftExp) = " << dt1 << "^" << ftExp << " = " << dt1.pow(static_cast<float>(ftExp))  << std::endl;    
-    std::cout << "pow(dt1, dtExp) = " << dt1 << "^" << dtExp << " = " << dt1.pow(static_cast<double>(dtExp))  << std::endl;    
+    std::cout << "pow(dt1, itExp) = " << dt1 << "^" << itExp << " = " << dt1.pow(static_cast<double>(itExp))  << std::endl;
+    std::cout << "pow(dt1, ftExp) = " << dt1 << "^" << ftExp << " = " << dt1.pow(static_cast<double>(ftExp))  << std::endl;    
+    std::cout << "pow(dt1, dtExp) = " << dt1 << "^" << dtExp << " = " << dt1.pow(dtExp)  << std::endl;    
     std::cout << "---------------------\n" << std::endl;    
 
     // Power tests with IntType
     std::cout << "Power tests with IntType " << std::endl;
     std::cout << "pow(it1, intExp) = " << it1 << "^" << intExp << " = " << it1.pow(intExp)  << std::endl;
     std::cout << "pow(it1, itExp) = " << it1 << "^" << itExp << " = " << it1.pow(itExp)  << std::endl;
-    std::cout << "pow(it1, ftExp) = " << it1 << "^" << ftExp << " = " << it1.pow(static_cast<float>(ftExp))  << std::endl;    
-    std::cout << "pow(it1, dtExp) = " << it1 << "^" << dtExp << " = " << it1.pow(static_cast<double>(dtExp)) << std::endl;    
+    std::cout << "pow(it1, ftExp) = " << it1 << "^" << ftExp << " = " << it1.pow(static_cast<int>(ftExp))  << std::endl;    
+    std::cout << "pow(it1, dtExp) = " << it1 << "^" << dtExp << " = " << it1.pow(static_cast<int>(dtExp)) << std::endl;    
     std::cout << "===============================\n" << std::endl; 
 
 //     // ------------------------------------------------------------
@@ -614,7 +655,7 @@ int main()
     HeapA heapA; 
 
     Numeric ft ( 2.0f );
-    Numeric dt ( 2 );
+    Numeric dt ( 2.0 );
     Numeric it ( 2 ) ;
 
     ft += 2.0f;
@@ -623,7 +664,7 @@ int main()
     std::cout << "FloatType subtract result=" << ft << std::endl;
     ft *= 2.0f;
     std::cout << "FloatType multiply result=" << ft << std::endl;
-    //ft /= 16.0f;
+    ft /= 16.0f;
     std::cout << "FloatType divide result=" << ft << std::endl << std::endl;
 
     dt += 2.0;
@@ -632,7 +673,7 @@ int main()
     std::cout << "DoubleType subtract result=" << dt << std::endl;
     dt *= 2.0;
     std::cout << "DoubleType multiply result=" << dt << std::endl;
-    //dt /= static_cast<double>(5.f);
+    dt /= 5.f;
     std::cout << "DoubleType divide result=" << dt << std::endl << std::endl;
 
     it += 2;
@@ -641,10 +682,10 @@ int main()
     std::cout << "IntType subtract result=" << it << std::endl;
     it *= 2;
     std::cout << "IntType multiply result=" << it << std::endl;
-    //it /= 3;
+    it /= 3;
     std::cout << "IntType divide result=" << it << std::endl << std::endl;
     it *= 1000;
-    //it /= 2;
+    it /= 2;
     it -= 10;
     it += 100;
     std::cout << "Chain calculation = " << it << std::endl;
@@ -653,7 +694,7 @@ int main()
     // --------
     ft += 3.0f;
     ft *= 1.5f;
-    //ft /= 5.0f;
+    ft /= 5.0f;
     std::cout << "New value of ft = (ft + 3.0f) * 1.5f / 5.0f = " << ft << std::endl;
        
     std::cout << "---------------------\n" << std::endl; 
@@ -665,7 +706,7 @@ int main()
     // --------
     std::cout << "Use of function concatenation (mixed type arguments) " << std::endl;
     dt *= it;
-    //dt /= static_cast<double>(5.0f);
+    dt /= static_cast<double>(5.0f);
     dt += static_cast<double>(ft);
     std::cout << "New value of dt = (dt * it) / 5.0f + ft = " << dt << std::endl;
 
@@ -675,17 +716,17 @@ int main()
     // --------
     std::cout << "Intercept division by 0 " << std::endl;
 
-    // std::cout << "New value of it = it / 0 = ";
-    // it /= 0;
-    // std::cout << it << std::endl;
+    std::cout << "New value of it = it / 0 = ";
+    it /= 0;
+    std::cout << it << std::endl;
     
-    // std::cout << "New value of ft = ft / 0 = ";
-    // ft /= 0;
-    // std::cout << ft << std::endl;
+    std::cout << "New value of ft = ft / 0 = ";
+    ft /= 0;
+    std::cout << ft << std::endl;
     
-    // std::cout << "New value of dt = dt / 0 = ";
-    // dt /= 0;
-    // std::cout << dt << std::endl;
+    std::cout << "New value of dt = dt / 0 = ";
+    dt /= 0;
+    std::cout << dt << std::endl;
 
     std::cout << "---------------------\n" << std::endl; 
 
