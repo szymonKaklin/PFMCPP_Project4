@@ -80,7 +80,6 @@ your program should generate the following output EXACTLY.
 This includes the warnings. 
  The output should have zero warnings.
 
-
 FloatType add result=4
 FloatType subtract result=2
 FloatType multiply result=4
@@ -297,7 +296,7 @@ public:
         }
         else if( x < std::numeric_limits<Type>::epsilon() )
         {
-            std::cout << "warning: floating point division by zero !" << std::endl;
+            std::cout << "warning: floating point division by zero!" << std::endl;
         }
 
         *value /= x;
@@ -306,6 +305,7 @@ public:
 
     operator Type() const { return *value; }
 };
+
 /*-------------------------------------------------------------------------------*/
 template<>
 struct Numeric<double>
@@ -365,49 +365,34 @@ public:
 };
 
 /*-------------------------------------------------------------------------------*/
-// struct Point
-// {
-//     Point(const FloatType& ft, const FloatType& ft2) : x(static_cast<float>(ft)), y(static_cast<float>(ft2)) { }
-//     Point(const IntType& it, const IntType& it2) : x(static_cast<float>(it)), y(static_cast<float>(it2)) { }
-//     Point(const DoubleType& dt, const DoubleType& dt2) : x(static_cast<float>(dt)), y(static_cast<float>(dt2)) { }
+template<typename numType>
+struct Point
+{
+    using Type = numType;
+private:
+    float x{0}, y{0};
+public:
+    Point( const Type& var1, const Type& var2 ) : x( var1 ), y( var2 ) { }
     
-//     Point& multiply(float m);
-//     Point& multiply(FloatType& m);
-//     Point& multiply(IntType& m);
-//     Point& multiply(DoubleType& m);
+    Point& multiply( Type m )
+    {
+        x *= m;
+        y *= m;
+        return *this;
+    }
     
-//     void toString();
+    void toString()
+    {
+        std::cout << "Point { x: " << x << ", y: " << y << " }" << std::endl; 	
+    }
+};
 
-// private:
-//     float x{0}, y{0};
-// };
-
-// void Point::toString()
-// {
-//     std::cout << "Point { x: " << x << ", y: " << y << " }" << std::endl; 	
-// }
-
-// Point& Point::multiply(float m)
-// {
-//     x *= m;
-//     y *= m;
-//     return *this;
-// }
-
-// Point& Point::multiply(FloatType& m)
-// {
-//     return multiply(static_cast<float>(m));
-// }
-
-// Point& Point::multiply(IntType& m)
-// {
-//     return multiply(static_cast<float>(m));
-// }
-
-// Point& Point::multiply(DoubleType& m)
-// {
-//     return multiply(static_cast<float>(m));
-// }
+/*-------------------------------------------------------------------------------*/
+template<typename numType>
+void myNumericFreeFunct( std::unique_ptr<numType>& value )
+{
+    *value += static_cast<numType>(7.0f);
+}
 
 /*-------------------------------------------------------------------------------*/
 void part3()
@@ -448,12 +433,6 @@ void part3()
 }
 
 /*-------------------------------------------------------------------------------*/
-template<typename numType>
-void myNumericFreeFunct( std::unique_ptr<numType>& value )
-{
-    *value += static_cast<numType>(7.0f);
-}
-
 void part4()
 {
     // ------------------------------------------------------------
@@ -493,49 +472,49 @@ void part4()
     std::cout << "pow(it1, dtExp) = " << it1 << "^" << dtExp << " = " << it1.pow(static_cast<int>(dtExp)) << std::endl;    
     std::cout << "===============================\n" << std::endl; 
 
-//     // ------------------------------------------------------------
-//     //                          Point tests
-//     // ------------------------------------------------------------
-//     FloatType ft2(3.0f);
-//     DoubleType dt2(4.0);
-//     IntType it2(5);
-//     float floatMul = 6.0f;
+    // ------------------------------------------------------------
+    //                          Point tests
+    // ------------------------------------------------------------
+    Numeric ft2(3.0f);
+    Numeric dt2(4.0);
+    Numeric it2(5);
+    float floatMul = 6.0f; // float
 
-//     // Point tests with float
-//     std::cout << "Point tests with float argument:" << std::endl;
-//     Point p0(ft2, floatMul);
-//     p0.toString();   
-//     std::cout << "Multiplication factor: " << floatMul << std::endl;
-//     p0.multiply(floatMul); 
-//     p0.toString();   
-//     std::cout << "---------------------\n" << std::endl;
+    // Point tests with float
+    std::cout << "Point tests with float argument:" << std::endl;
+    Point<float> p0(ft2, floatMul);
+    p0.toString();   
+    std::cout << "Multiplication factor: " << floatMul << std::endl;
+    p0.multiply(floatMul); 
+    p0.toString();   
+    std::cout << "---------------------\n" << std::endl;
 
-//     // Point tests with FloatType
-//     std::cout << "Point tests with FloatType argument:" << std::endl;
-//     Point p1(ft2, ft2);
-//     p1.toString();   
-//     std::cout << "Multiplication factor: " << ft2 << std::endl;
-//     p1.multiply(ft2); 
-//     p1.toString();   
-//     std::cout << "---------------------\n" << std::endl;
+    // Point tests with FloatType
+    std::cout << "Point tests with FloatType argument:" << std::endl;
+    Point<float> p1(ft2, ft2);
+    p1.toString();   
+    std::cout << "Multiplication factor: " << ft2 << std::endl;
+    p1.multiply(ft2); 
+    p1.toString();   
+    std::cout << "---------------------\n" << std::endl;
 
-//     // Point tests with DoubleType
-//     std::cout << "Point tests with DoubleType argument:" << std::endl;
-//     Point p2(ft2, static_cast<float>(dt2));
-//     p2.toString();   
-//     std::cout << "Multiplication factor: " << dt2 << std::endl;
-//     p2.multiply(dt2); 
-//     p2.toString();   
-//     std::cout << "---------------------\n" << std::endl;
+    // Point tests with DoubleType
+    std::cout << "Point tests with DoubleType argument:" << std::endl;
+    Point<float> p2(ft2, static_cast<float>(dt2));
+    p2.toString();   
+    std::cout << "Multiplication factor: " << dt2 << std::endl;
+    p2.multiply(static_cast<float>(dt2)); 
+    p2.toString();   
+    std::cout << "---------------------\n" << std::endl;
 
-//     // Point tests with IntType
-//     std::cout << "Point tests with IntType argument:" << std::endl;
-//     Point p3(ft2, static_cast<float>(dt2));
-//     p3.toString();   
-//     std::cout << "Multiplication factor: " << it2 << std::endl;
-//     p3.multiply(it2); 
-//     p3.toString();   
-//     std::cout << "---------------------\n" << std::endl;
+    // Point tests with IntType
+    std::cout << "Point tests with IntType argument:" << std::endl;
+    Point<float> p3(ft2, static_cast<float>(dt2));
+    p3.toString();   
+    std::cout << "Multiplication factor: " << it2 << std::endl;
+    p3.multiply(it2); 
+    p3.toString();   
+    std::cout << "---------------------\n" << std::endl;
 }
 
 // void part6()
