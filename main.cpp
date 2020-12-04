@@ -279,7 +279,7 @@ public:
     template<typename DivisorType>
     Numeric& operator/=( DivisorType x )
     {
-        if ( std::is_same<int, Type>::value )
+        if( std::is_same<int, Type>::value )
         {
             if( std::is_same<int, DivisorType>::value )
             {
@@ -289,16 +289,15 @@ public:
                     return *this;
                 }
             }
-            else if ( x < std::numeric_limits<DivisorType>::epsilon() )
+            else if( x < std::numeric_limits<DivisorType>::epsilon() )
             {
-                std::cout << "warning: floating point division by zero!" << std::endl;
+                std::cout << "can't divide integers by zero!" << std::endl;
                 return *this;
             }
         }
-        else if( x < std::numeric_limits<DivisorType>::epsilon() )
+        else if( x < std::numeric_limits<Type>::epsilon() )
         {
-            std::cout << "warning: floating point division by zero!" << std::endl;
-            return *this;
+            std::cout << "warning: floating point division by zero !" << std::endl;
         }
 
         *value /= x;
@@ -351,33 +350,14 @@ public:
         return *this;
     }
     
-    // NO NEED FOR THIS LONG /= OPERATOR IN Numeric<double>, fix
     template<typename DivisorType>
     Numeric& operator/=( DivisorType x )
     {
-        if ( std::is_same<int, Type>::value )
-        {
-            if( std::is_same<int, DivisorType>::value )
-            {
-                if( static_cast<int>(x) == 0 )
-                {
-                    std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl;
-                    return *this;
-                }
-            }
-            else if ( x < std::numeric_limits<DivisorType>::epsilon() )
-            {
-                std::cout << "warning: floating point division by zero!" << std::endl;
-                return *this;
-            }
-        }
-        else if( x < std::numeric_limits<DivisorType>::epsilon() )
+        if( static_cast<double>(x) < std::numeric_limits<Type>::epsilon() )
         {
             std::cout << "warning: floating point division by zero!" << std::endl;
-            return *this;
         }
-
-        *value /= static_cast<double>(x);
+        *value /= x;
         return *this;
     }
 
@@ -439,23 +419,23 @@ void part3()
 
     ft *= ft;
     ft *= ft;
-    //ft /= static_cast<float>(it);
+    ft /= static_cast<float>(it);
     std::cout << "The result of FloatType^3 divided by IntType is: " << ft << std::endl;
     
     dt *= 3;
     dt += static_cast<double>(it);
     std::cout << "The result of DoubleType times 3 plus IntType is : " << dt << std::endl;
 
-    //it /= static_cast<int>(pi);
+    it /= static_cast<int>(pi);
     it *= static_cast<int>(dt);
     it -= static_cast<int>(ft);
     std::cout << "The result of IntType divided by 3.14 multiplied by DoubleType minus FloatType is: " << it << std::endl;
 
     std::cout << "An operation followed by attempts to divide by 0, which are ignored and warns user: " << std::endl;
     it *= it;
-    //it /= 0;
-    //it /= static_cast<int>(0.f);
-    //it /= static_cast<int>(0.0);
+    it /= 0;
+    it /= 0.f;
+    it /= 0.0;
     std::cout << it << std::endl;
     
     it *= static_cast<int>(ft);
@@ -673,7 +653,7 @@ int main()
     std::cout << "DoubleType subtract result=" << dt << std::endl;
     dt *= 2.0;
     std::cout << "DoubleType multiply result=" << dt << std::endl;
-    dt /= 5.f;
+    dt /= static_cast<double>(5.f);
     std::cout << "DoubleType divide result=" << dt << std::endl << std::endl;
 
     it += 2;
