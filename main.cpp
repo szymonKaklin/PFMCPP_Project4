@@ -239,14 +239,16 @@ template<typename numTypeA, typename numTypeB>
 struct Point
 {
 private:
-    float x{0}, y{0};
+    float x{0};
+    float y{0};
 public:
     Point( const numTypeA& var1, const numTypeB& var2 ) : x( var1 ), y( var2 ) { }
     
-    Point& multiply( float m )
+    template<typename OtherType>
+    Point& multiply( const OtherType& m )
     {
-        x *= m;
-        y *= m;
+        x *= static_cast<float>(m);
+        y *= static_cast<float>(m);
         return *this;
     }
     
