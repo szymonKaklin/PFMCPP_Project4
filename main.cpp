@@ -213,11 +213,11 @@ public:
     template<typename DivisorType>
     Numeric& operator/=( const DivisorType& x )
     {
-        if( std::is_same<int, NumericType>::value )
+        if ( std::is_same<int, NumericType>::value )
         {
-            if( std::is_same<int, DivisorType>::value )
+            if constexpr ( std::is_same<int, DivisorType>::value )
             {
-                if( static_cast<int>(x) == 0 )
+                if constexpr ( x == 0 )
                 {
                     std::cout << "error: integer division by zero is an error and will crash the program!" << std::endl;
                     return *this;
@@ -229,7 +229,7 @@ public:
                 return *this;
             }
         }
-        else if( static_cast<NumericType>(x) < std::numeric_limits<NumericType>::epsilon() )
+        else if( x < std::numeric_limits<DivisorType>::epsilon() )
         {
             std::cout << "warning: floating point division by zero!" << std::endl;
         }
