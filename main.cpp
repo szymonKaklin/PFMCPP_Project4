@@ -213,7 +213,7 @@ public:
     template<typename DivisorType>
     Numeric& operator/=( const DivisorType& x )
     {
-        if ( std::is_same<int, NumericType>::value )
+        if ( std::is_same<int, NumericType>::value ) FIXME this should be constexpr
         {
             if constexpr ( std::is_same<int, DivisorType>::value )
             {
@@ -223,13 +223,13 @@ public:
                     return *this;
                 }
             }
-            else if( x < std::numeric_limits<DivisorType>::epsilon() )
+            else if( x < std::numeric_limits<DivisorType>::epsilon() ) FIXME this should be constexpr
             {
                 std::cout << "can't divide integers by zero!" << std::endl;
                 return *this;
             }
         }
-        else if( x < std::numeric_limits<DivisorType>::epsilon() )
+        else if( x < std::numeric_limits<DivisorType>::epsilon() ) FIXME this should be constexpr
         {
             std::cout << "warning: floating point division by zero!" << std::endl;
         }
